@@ -6,7 +6,7 @@ global: {}
 replicaCount: 1
 logLevel: "debug"
 
-apiHost: "inventory-management-bff:80"
+apiHost: "inventory-bff-test-yks:80"
 
 image:
   repository: replace
