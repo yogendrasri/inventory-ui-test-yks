@@ -1,0 +1,17 @@
+{{- if .Values.route.enabled -}}
+{{- $serviceName := include "starter-kit.name" . -}}
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: {{ include "starter-kit.fullname" . }}
+  annotations:
+    argocd.argoproj.io/sync-options: Validate=false
+spec:
+  to:
+    kind: Service
+    name: {{ $serviceName }}
+    weight: 100
+  tls:
+    termination: edge
+  wildcardPolicy: None
+{{- end }}

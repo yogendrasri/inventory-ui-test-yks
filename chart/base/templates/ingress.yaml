@@ -1,0 +1,34 @@
+{{- if .Values.ingress.enabled -}}
+{{- $serviceName := include "starter-kit.fullname" . -}}
+{{- $fullName := include "starter-kit.fullname" . -}}
+{{- $namespace := default .Release.Namespace .Values.ingress.appid.binding.namespace -}}
+{{- $requestType := .Values.ingress.appid.requestType -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app.kubernetes.io/name: {{ include "starter-kit.appname" . }}
+    helm.sh/chart: {{ include "starter-kit.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app: {{ .Release.Name }}
+  {{- if .Values.ingress.appid.enabled }}
+  annotations:
+    ingress.bluemix.net/appid-auth: {{ printf "bindSecret=%s namespace=%s requestType=%s serviceName=%s" (required "AppId binding is required to enable auth on the ingress" .Values.ingress.appid.binding.name) $namespace $requestType $fullName }}
+  {{- end}}
+spec:
+{{- if include "starter-kit.tlsSecretName" . }}
+  tls:
+    - hosts:
+        - {{ include "starter-kit.host" . }}
+      secretName: {{ include "starter-kit.tlsSecretName" . }}
+{{- end }}
+  rules:
+    - host: {{ include "starter-kit.host" . }}
+      http:
+        paths:
+          - path: {{ .path }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: http
+{{- end }}
